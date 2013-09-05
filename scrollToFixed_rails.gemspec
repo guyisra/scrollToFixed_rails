@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Guy Israeli"]
   spec.description   = %q{An asset pipeline compatible wrapper for scrollToFixed.js}
   spec.summary       = %q{9gag like Scroll 'n Float magic made possible with scrollToFixed.js}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/guyisra/scrollToFixed_rails"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
