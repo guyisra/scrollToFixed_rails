@@ -21,7 +21,8 @@ Or install it yourself as:
 ## Usage
 
 add 
-	//= require scrolltofixed
+
+    //= require scrolltofixed
 
 to application.js manifest
 
