@@ -1,23 +1,10 @@
-// Copyright (c) 2011 Joseph Cava-Lynch
-
-// Permission is hereby granted, free of charge, to any person obtaining a copy of
-// this software and associated documentation files (the "Software"), to deal in
-// the Software without restriction, including without limitation the rights to
-// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-// the Software, and to permit persons to whom the Software is furnished to do so,
-// subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// Version for debugging - 1.0.1
+/*
+ * ScrollToFixed
+ * https://github.com/bigspotteddog/ScrollToFixed
+ *
+ * Copyright (c) 2011 Joseph Cava-Lynch
+ * MIT license
+ */
 (function($) {
     $.isScrollToFixed = function(el) {
         return !!$(el).data('ScrollToFixed');
@@ -44,8 +31,8 @@
 
         var position;
         var originalPosition;
-
         var originalOffsetTop;
+        var originalZIndex;
 
         // The offset top of the element when resetScroll was called. This is
         // used to determine if we have scrolled past the top of the element.
@@ -154,6 +141,7 @@
                 // to the margin top specified in the options.
 
                 cssOptions={
+                    'z-index' : base.options.zIndex,
                     'position' : 'fixed',
                     'top' : base.options.bottom == -1?getMarginTop():'',
                     'bottom' : base.options.bottom == -1?'':base.options.bottom,
@@ -163,7 +151,7 @@
 
                 target.css(cssOptions);
 
-                target.addClass('scroll-to-fixed-fixed');
+                target.addClass(base.options.baseClassName);
 
                 if (base.options.className) {
                     target.addClass(base.options.className);
@@ -210,6 +198,7 @@
                 // Remove the style attributes that were added to the target.
                 // This will reverse the target back to the its original style.
                 target.css({
+                    'z-index' : originalZIndex,
                     'width' : '',
                     'position' : originalPosition,
                     'left' : '',
@@ -261,6 +250,15 @@
             // happens once.
             if (!isReset) {
                 resetScroll();
+            } else if (isUnfixed()) {
+                // if the offset has changed since the last scroll,
+                // we need to get it again.
+
+                // Capture the offset top of the target element.
+                offsetTop = target.offset().top;
+
+                // Capture the offset left of the target element.
+                offsetLeft = target.offset().left;
             }
 
             // Grab the current horizontal scroll position.
@@ -386,7 +384,7 @@
         }
 
         var windowScroll = function(event) {
-            checkScroll();
+            (!!window.requestAnimationFrame) ? requestAnimationFrame(checkScroll) : checkScroll();
         }
 
         // From: http://kangax.github.com/cft/#IS_POSITION_FIXED_SUPPORTED
@@ -434,8 +432,9 @@
         // and binds to the window scroll and resize events.
         base.init = function() {
             // Capture the options for this plugin.
-            base.options = $
-                    .extend({}, $.ScrollToFixed.defaultOptions, options);
+            base.options = $.extend({}, $.ScrollToFixed.defaultOptions, options);
+
+            originalZIndex = target.css('z-index')
 
             // Turn off this functionality for devices that do not support it.
             // if (!(base.options && base.options.dontCheckForPositionFixedSupport)) {
@@ -539,7 +538,8 @@
         marginTop : 0,
         limit : 0,
         bottom : -1,
-        zIndex : 1000
+        zIndex : 1000,
+        baseClassName: 'scroll-to-fixed-fixed'
     };
 
     // Returns enhanced elements that will fix to the top of the page when the
